@@ -41,6 +41,3 @@ description = "Hardcoded access key detected"
 regex = '''(?i)\b(access_key|secret_key)\s*=\s*["'][^"']+["']'''
 keywords = ["access_key", "secret_key"]
 severity = "HIGH"
-
-
-regex = '''(?i)\bsecret_value\s*=\s*["'][^"']+["']'''
