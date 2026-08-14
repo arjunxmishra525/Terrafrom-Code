@@ -1,0 +1,46 @@
+title = "Terraform Production Secret Detection"
+
+[extend]
+useDefault = true
+
+# ============================================================
+# TERRAFORM HARD-CODED SECRET RULES
+# ============================================================
+
+[[rules]]
+id = "terraform-secret-value"
+description = "Hardcoded Terraform secret_value detected"
+regex = '''(?i)\bsecret_value\s*=\s*["'][^"']+["']'''
+keywords = ["secret_value"]
+severity = "HIGH"
+
+[[rules]]
+id = "terraform-password"
+description = "Hardcoded password detected"
+regex = '''(?i)\b(password|admin_password|administrator_password)\s*=\s*["'][^"']+["']'''
+keywords = ["password", "admin_password", "administrator_password"]
+severity = "HIGH"
+
+[[rules]]
+id = "terraform-api-key"
+description = "Hardcoded API key detected"
+regex = '''(?i)\b(api_key|apikey|api_token)\s*=\s*["'][^"']+["']'''
+keywords = ["api_key", "apikey", "api_token"]
+severity = "HIGH"
+
+[[rules]]
+id = "terraform-client-secret"
+description = "Hardcoded client secret detected"
+regex = '''(?i)\b(client_secret|client_password)\s*=\s*["'][^"']+["']'''
+keywords = ["client_secret", "client_password"]
+severity = "HIGH"
+
+[[rules]]
+id = "terraform-access-key"
+description = "Hardcoded access key detected"
+regex = '''(?i)\b(access_key|secret_key)\s*=\s*["'][^"']+["']'''
+keywords = ["access_key", "secret_key"]
+severity = "HIGH"
+
+
+regex = '''(?i)\bsecret_value\s*=\s*["'][^"']+["']'''
