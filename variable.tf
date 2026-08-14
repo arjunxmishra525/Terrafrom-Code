@@ -1,25 +1,29 @@
 variable "RG" {
-    type = map(any)
+  type = map(any)
 }
 
 variable "NSG" {
-    type = map(any)
+  type = map(any)
 }
 
 variable "VNET" {
-    type = map(any)
+  type = map(any)
 }
 
 variable "subnet" {
-      type = map(any)
+  type = map(any)
 }
 
 variable "publicip" {
-      type = map(any)
+  type = map(any)
 }
 variable "nic" {
-    type = map(any)
+  type = map(any)
 }
 variable "nsg-rule" {
-      type = map(any)
+  type = map(any)
+}
+
+variable "vm" {
+  type = map(any)
 }

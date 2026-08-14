@@ -1,43 +1,96 @@
-title = "Terraform Production Secret Detection"
+# ==============================================================================
+# Production Level Gitleaks Scanner Configuration
+# Target: Infrastructure as Code (Terraform, Azure, AWS, GCP, K8s, DevOps Pipelines)
+# ==============================================================================
+
+title = "Production DevOps & Terraform Secret & Vulnerability Detection"
 
 [extend]
 useDefault = true
 
-# ============================================================
-# TERRAFORM HARD-CODED SECRET RULES
-# ============================================================
+# ------------------------------------------------------------------------------
+# GLOBAL ALLOWLISTS (Ignore non-secret build artifacts & standard placeholders)
+# ------------------------------------------------------------------------------
+[allowlist]
+description = "Global allowlist for build artifacts and dummy placeholders"
+paths = [
+  '''\.terraform/''',
+  '''\.git/''',
+  '''\.terraform\.lock\.hcl$''',
+  '''terraform\.tfstate''',
+  '''terraform\.tfstate\.backup'''
+]
+regexes = [
+  '''(?i)example''',
+  '''(?i)placeholder''',
+  '''(?i)dummy''',
+  '''\$\{var\.[^}]+\}''',
+  '''\$\{local\.[^}]+\}'''
+]
+
+# ------------------------------------------------------------------------------
+# TERRAFORM & AZURE SPECIFIC SECRET RULES
+# ------------------------------------------------------------------------------
 
 [[rules]]
-id = "terraform-secret-value"
-description = "Hardcoded Terraform secret_value detected"
-regex = '''(?i)\bsecret_value\s*=\s*["'][^"']+["']'''
-keywords = ["secret_value"]
+id = "tf-hardcoded-password"
+description = "Hardcoded password or admin_password detected in Terraform / HCL code"
+regex = '''(?i)\b(admin_password|administrator_password|db_password|password|pass)\s*=\s*["'][^"']{4,}["']'''
+keywords = ["admin_password", "administrator_password", "db_password", "password", "pass"]
+severity = "CRITICAL"
+
+[[rules]]
+id = "tf-hardcoded-secret"
+description = "Hardcoded secret_value or client_secret detected in Terraform / HCL code"
+regex = '''(?i)\b(secret_value|client_secret|client_password|app_secret)\s*=\s*["'][^"']{4,}["']'''
+keywords = ["secret_value", "client_secret", "client_password", "app_secret"]
+severity = "CRITICAL"
+
+[[rules]]
+id = "tf-azure-storage-account-key"
+description = "Hardcoded Azure Storage Account Key or SAS Token"
+regex = '''(?i)\b(account_key|storage_account_key|sas_token|primary_access_key)\s*=\s*["'][^"']{16,}["']'''
+keywords = ["account_key", "storage_account_key", "sas_token", "primary_access_key"]
 severity = "HIGH"
 
 [[rules]]
-id = "terraform-password"
-description = "Hardcoded password detected"
-regex = '''(?i)\b(password|admin_password|administrator_password)\s*=\s*["'][^"']+["']'''
-keywords = ["password", "admin_password", "administrator_password"]
+id = "azure-connection-string"
+description = "Azure Service Bus / Storage / EventHub Connection String detected"
+regex = '''(?i)DefaultEndpointsProtocol=https?;AccountName=[^;]+;AccountKey=[A-Za-z0-9+/=]{40,100}'''
+keywords = ["DefaultEndpointsProtocol", "AccountKey"]
+severity = "CRITICAL"
+
+[[rules]]
+id = "azure-client-secret"
+description = "Azure Service Principal Client Secret"
+regex = '''(?i)\b(azure_client_secret|ARM_CLIENT_SECRET|AZURE_CLIENT_SECRET)\s*=\s*["'][^"']+["']'''
+keywords = ["azure_client_secret", "ARM_CLIENT_SECRET", "AZURE_CLIENT_SECRET"]
+severity = "CRITICAL"
+
+[[rules]]
+id = "tf-api-key"
+description = "Hardcoded API Key or API Token in Terraform / Configuration files"
+regex = '''(?i)\b(api_key|apikey|api_token|auth_token|bearer_token)\s*=\s*["'][^"']{8,}["']'''
+keywords = ["api_key", "apikey", "api_token", "auth_token", "bearer_token"]
 severity = "HIGH"
 
 [[rules]]
-id = "terraform-api-key"
-description = "Hardcoded API key detected"
-regex = '''(?i)\b(api_key|apikey|api_token)\s*=\s*["'][^"']+["']'''
-keywords = ["api_key", "apikey", "api_token"]
+id = "tf-access-key"
+description = "Hardcoded Access Key or Secret Key"
+regex = '''(?i)\b(access_key|secret_key|aws_access_key_id|aws_secret_access_key)\s*=\s*["'][^"']{8,}["']'''
+keywords = ["access_key", "secret_key", "aws_access_key_id", "aws_secret_access_key"]
 severity = "HIGH"
 
 [[rules]]
-id = "terraform-client-secret"
-description = "Hardcoded client secret detected"
-regex = '''(?i)\b(client_secret|client_password)\s*=\s*["'][^"']+["']'''
-keywords = ["client_secret", "client_password"]
-severity = "HIGH"
+id = "database-connection-uri"
+description = "Hardcoded Database Connection URI with Plaintext Password"
+regex = '''(?i)(postgres|postgresql|mysql|mongodb|redis|mssql|oracle):\/\/[^:]+:[^@]+@[^:\s\/]+'''
+keywords = ["postgres://", "postgresql://", "mysql://", "mongodb://", "redis://"]
+severity = "CRITICAL"
 
 [[rules]]
-id = "terraform-access-key"
-description = "Hardcoded access key detected"
-regex = '''(?i)\b(access_key|secret_key)\s*=\s*["'][^"']+["']'''
-keywords = ["access_key", "secret_key"]
-severity = "HIGH"
+id = "private-key-pem"
+description = "RSA / EC / OPENSSH Private Key embedded in code"
+regex = '''-----BEGIN (RSA|EC|DSA|OPENSSH|PGP) PRIVATE KEY-----'''
+keywords = ["BEGIN RSA PRIVATE KEY", "BEGIN PRIVATE KEY", "BEGIN OPENSSH PRIVATE KEY"]
+severity = "CRITICAL"
