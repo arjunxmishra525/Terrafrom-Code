@@ -1,10 +1,31 @@
-- task: TerraformInstaller@1
-  inputs:
-    terraformVersion: 'latest'
-    - task: TerraformTask@5
-      inputs:
-        provider: 'azurerm'
-        command: 'init'
-        backendServiceArm: 'Arjun-Github-Action'
+trigger:
+  branches:
+    include:
+      - feature/*
+steps:
+  - task: TerraformInstaller@1
+    inputs:
+     terraformVersion: 'latest'
+  - task: TerraformTask@5
+    inputs:
+     provider: 'azurerm'
+     command: 'init'
+     backendServiceArm: 'Arjun-Github-Action'
+     backendAzureRmResourceGroupName: 'humana-rg'
+     backendAzureRmStorageAccountName: 'storageprivate4567'
+     backendAzureRmContainerName: 'newcontaine'
+     backendAzureRmKey: 'arjun.tfstate'
+  
+  - task: TerraformTask@5
+    inputs:
+      provider: 'azurerm'
+      command: 'custom'
+      outputTo: 'console'
+      customCommand: 'fmt'
+      environmentServiceNameAzureRM: 'Arjun-Github-Action'
 
-        
+  - task: TerraformTask@5
+    inputs:
+      provider: 'azurerm'
+      command: 'plan'
+      environmentServiceNameAzureRM: 'Arjun-Github-Action'
