@@ -2,6 +2,7 @@ trigger:
   branches:
     include:
       - feature/*
+      - main
 steps:
   - task: TerraformInstaller@1
     inputs:
